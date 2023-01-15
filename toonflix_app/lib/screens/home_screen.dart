@@ -26,21 +26,60 @@ class HomeScreen extends StatelessWidget {
         future: webtoons,
         builder: (context, snapshot) {
           if (snapshot.hasData) {
-            return ListView.separated(
-              scrollDirection: Axis.horizontal,
-              itemCount: snapshot.data!.length,
-              itemBuilder: (context, index) {
-                var wentoon = snapshot.data![index];
-                return Text(wentoon.title);
-              },
-              separatorBuilder: (context, index) {
-                return const SizedBox(width: 20);
-              },
+            return Column(
+              children: [
+                const SizedBox(
+                  height: 50,
+                ),
+                Expanded(
+                  child: makeList(snapshot),
+                ),
+              ],
             );
           }
           return const Center(child: CircularProgressIndicator());
         },
       ),
+    );
+  }
+
+  ListView makeList(AsyncSnapshot<List<WebtoonModel>> snapshot) {
+    return ListView.separated(
+      scrollDirection: Axis.horizontal,
+      itemCount: snapshot.data!.length,
+      padding: const EdgeInsets.symmetric(horizontal: 20),
+      itemBuilder: (context, index) {
+        var webtoon = snapshot.data![index];
+        return Column(
+          children: [
+            Container(
+              width: 250,
+              clipBehavior: Clip.hardEdge,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(10),
+                boxShadow: [
+                  BoxShadow(
+                    blurRadius: 15,
+                    offset: const Offset(10, 10),
+                    color: Colors.black.withOpacity(0.5),
+                  ),
+                ],
+              ),
+              child: Image.network(webtoon.thumb),
+            ),
+            const SizedBox(height: 10),
+            Text(
+              webtoon.title,
+              style: const TextStyle(
+                fontSize: 22,
+              ),
+            ),
+          ],
+        );
+      },
+      separatorBuilder: (context, index) {
+        return const SizedBox(width: 40);
+      },
     );
   }
 }
