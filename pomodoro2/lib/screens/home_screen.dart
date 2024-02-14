@@ -10,22 +10,36 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  int _totalSeconds = 1500;
-  bool isRunning = false;
+  static const twentyFiveMinutes = 1500;
+  int _totalSeconds = twentyFiveMinutes;
+  int _totalPomodoros = 0;
+  bool _isRunning = false;
   late Timer timer;
 
   // 1초마다 실행
   void onTick(Timer timer) {
-    setState(() {
-      _totalSeconds--;
-    });
+    if (_totalSeconds == 0) {
+      timer.cancel();
+
+      setState(() {
+        _totalPomodoros++;
+        _totalSeconds = twentyFiveMinutes;
+        _isRunning = false;
+      });
+
+      timer.cancel();
+    } else {
+      setState(() {
+        _totalSeconds--;
+      });
+    }
   }
 
   void onStartPressed() {
     timer = Timer.periodic(const Duration(seconds: 1), onTick);
 
     setState(() {
-      isRunning = true;
+      _isRunning = true;
     });
   }
 
@@ -33,8 +47,14 @@ class _HomeScreenState extends State<HomeScreen> {
     timer.cancel();
 
     setState(() {
-      isRunning = false;
+      _isRunning = false;
     });
+  }
+
+  String format(int seconds) {
+    var duration = Duration(seconds: seconds);
+
+    return duration.toString().split('.').first.substring(2, 7);
   }
 
   @override
@@ -48,7 +68,7 @@ class _HomeScreenState extends State<HomeScreen> {
             child: Container(
               alignment: Alignment.bottomCenter,
               child: Text(
-                _totalSeconds.toString(),
+                format(_totalSeconds),
                 style: TextStyle(
                   color: Theme.of(context).cardColor,
                   fontSize: 89,
@@ -63,10 +83,10 @@ class _HomeScreenState extends State<HomeScreen> {
               child: IconButton(
                 iconSize: 120,
                 color: Theme.of(context).cardColor,
-                icon: Icon(isRunning
+                icon: Icon(_isRunning
                     ? Icons.pause_circle_outline
                     : Icons.play_circle_outline),
-                onPressed: isRunning ? onPausePressed : onStartPressed,
+                onPressed: _isRunning ? onPausePressed : onStartPressed,
               ),
             ),
           ),
@@ -93,7 +113,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           ),
                         ),
                         Text(
-                          '0',
+                          _totalPomodoros.toString(),
                           style: TextStyle(
                             fontSize: 58,
                             fontWeight: FontWeight.w600,
